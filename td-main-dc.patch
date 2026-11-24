@@ -1,0 +1,29 @@
+diff --git a/td/telegram/net/NetQueryDispatcher.h b/td/telegram/net/NetQueryDispatcher.h
+index 48f1332e1..3532aa12d 100644
+--- a/td/telegram/net/NetQueryDispatcher.h
++++ b/td/telegram/net/NetQueryDispatcher.h
+@@ -21,6 +21,15 @@
+ #include <functional>
+ #include <memory>
+ #include <mutex>
++#include <cstdlib>
++
++namespace td {
++inline int32 td_main_dc_from_env() {
++  const char *e = std::getenv("TD_MAIN_DC");
++  int v = e ? std::atoi(e) : 0;
++  return (v >= 1 && v <= 5) ? v : 1;
++}
++}  // namespace td
+ 
+ namespace td {
+ 
+@@ -80,7 +89,7 @@ class NetQueryDispatcher {
+ #if TD_EMSCRIPTEN  // FIXME
+   std::atomic<int32> main_dc_id_{2};
+ #else
+-  std::atomic<int32> main_dc_id_{1};
++  std::atomic<int32> main_dc_id_{td_main_dc_from_env()};
+ #endif
+   ActorOwn<PublicRsaKeyWatchdog> public_rsa_key_watchdog_;
+   std::mutex mutex_;
